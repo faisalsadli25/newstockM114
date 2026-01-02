@@ -17,13 +17,12 @@
 
     <form id="loginForm" class="space-y-3">
       <input id="nama" type="text" placeholder="Masukkan nama"
-        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500" required>
+        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500" required>
 
       <input id="password" type="password" placeholder="Masukkan password"
-        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500" required>
+        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500" required>
 
-      <button
-        class="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700 transition">
+      <button class="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700">
         Masuk
       </button>
     </form>
@@ -31,70 +30,61 @@
 </div>
 
 <!-- ========== HEADER ========== -->
-<header class="sticky top-0 z-40 bg-red-700 text-white shadow-xl">
-  <div
-    class="max-w-6xl mx-auto
-           flex flex-col gap-2
-           sm:flex-row sm:items-center sm:justify-between
-           px-4 py-3">
-
-    <!-- TITLE -->
+<header class="sticky top-0 z-40 bg-red-700 text-white shadow-xl rounded-xl">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center px-4 py-3 gap-2">
     <h1 class="text-base sm:text-lg md:text-2xl font-bold text-center sm:text-left">
       STOCK TOKO ERAFONE MAROS (M114)
     </h1>
-
-    <!-- INFO KANAN -->
-    <div class="flex flex-col sm:items-end text-center sm:text-right">
-      <span id="user-name" class="text-sm md:text-base font-semibold"></span>
-      <div id="last-update" class="text-xs md:text-sm opacity-90">
-        Terakhir diperbarui: -
-      </div>
+    <div class="text-center sm:text-right">
+      <div id="user-name" class="font-semibold"></div>
+      <div id="last-update" class="text-xs opacity-90">Terakhir diperbarui: -</div>
     </div>
-
   </div>
 </header>
 
-
-<!-- ========== MAIN CONTENT ========== -->
-<main class="max-w-6xl mx-auto bg-white/50 rounded-xl shadow-xl p-4 md:p-6">
+<!-- ========== MAIN ========== -->
+<main class="max-w-6xl mx-auto p-4">
 
   <!-- SEARCH -->
   <input id="search-bar" type="text" placeholder="Cari barang..."
-    class="w-full border rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-red-500"
+    class="w-full bg-white rounded-lg px-4 py-2 mb-4 hover:bg-red-400 transition duration-700 "
     oninput="filterItems()">
 
-  <!-- TABLE RESPONSIVE -->
-  <div class="overflow-x-auto">
+  <!-- ===== DESKTOP TABLE ===== -->
+  <div class="hidden md:block overflow-x-auto">
     <table class="min-w-full border text-sm">
       <thead class="bg-red-600 text-white">
         <tr>
-          <th class="p-3 border">Material</th>
-          <th class="p-3 border">Description</th>
-          <th class="p-3 border">Stok Masuk</th>
-          <th class="p-3 border">Stok Keluar</th>
-          <th class="p-3 border">Total</th>
+          <th class="p-2 border">Material</th>
+          <th class="p-2 border">Description</th>
+          <th class="p-2 border">Masuk</th>
+          <th class="p-2 border">Keluar</th>
+          <th class="p-2 border">Total</th>
         </tr>
       </thead>
-      <tbody id="tabel-barang">
+      <tbody id="tabel-desktop">
         <tr>
-          <td colspan="6" class="p-4 text-center text-gray-500">
-            Silakan login untuk melihat data
+          <td colspan="5" class="p-4 text-center text-gray-500">
+            Silakan login
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- ===== MOBILE CARD ===== -->
+  <div id="tabel-mobile" class="md:hidden space-y-3"></div>
+
 </main>
 
 <!-- ========== FOOTER ========== -->
-<footer class="text-center text-white text-sm md:text-xl bg-red-700 px-4 py-4 font-bold">
+<footer class="text-center text-white text-sm bg-red-700 py-4 font-bold rounded-xl shadow-xl">
   © Website Stock By M Faisal Sadli
 </footer>
 
 <!-- ========== SCRIPT ========== -->
 <script>
-/* ================= CONFIG ================= */
+/* ===== CONFIG ===== */
 const PASSWORD_BENAR = "M114";
 const NAMA_DIIJINKAN = ["Dion","Ali","Wira","Awa","Hilda","Dilla","icha","anna"];
 
@@ -102,54 +92,51 @@ const sheetID = "11xtV-IQl-gD7X1nmAdT52u3XomF_7DT0hNJRyZj2hs4";
 const sheetName = "Sheet1";
 const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
-/* ================= ELEMENT ================= */
-const tabelBarang = document.getElementById("tabel-barang");
+/* ===== ELEMENT ===== */
+const tabelDesktop = document.getElementById("tabel-desktop");
+const tabelMobile = document.getElementById("tabel-mobile");
 const searchInput = document.getElementById("search-bar");
 const lastUpdate = document.getElementById("last-update");
 
-/* ================= LOGIN ================= */
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+/* ===== LOGIN ===== */
+document.getElementById("loginForm").addEventListener("submit", e => {
   e.preventDefault();
 
-  const nama = document.getElementById("nama").value.trim();
-  const password = document.getElementById("password").value;
-  const errorMsg = document.getElementById("errorMsg");
-  const loginModal = document.getElementById("loginModal");
+  const nama = namaInput = document.getElementById("nama").value.trim();
+  const pass = document.getElementById("password").value;
+  const error = document.getElementById("errorMsg");
 
-  errorMsg.textContent = "";
+  if (pass !== PASSWORD_BENAR) return error.textContent = "Password salah";
+  if (!NAMA_DIIJINKAN.includes(nama)) return error.textContent = "Nama tidak terdaftar";
 
-  if (password !== PASSWORD_BENAR) {
-    errorMsg.textContent = "Password salah!";
-    return;
-  }
-
-  if (!NAMA_DIIJINKAN.includes(nama)) {
-    errorMsg.textContent = "Nama tidak terdaftar";
-    return;
-  }
-
-  document.getElementById("user-name").textContent = "Selamat Datang : " + nama;
-  loginModal.classList.add("hidden");
+  document.getElementById("user-name").textContent = "Selamat Datang: " + nama;
+  document.getElementById("loginModal").classList.add("hidden");
   loadData();
 });
 
-/* ================= FILTER ================= */
+/* ===== FILTER ===== */
 function filterItems() {
   const q = searchInput.value.toLowerCase();
-  [...tabelBarang.rows].forEach(row => {
-    const material = row.cells[0]?.innerText.toLowerCase() || "";
-    const desc = row.cells[1]?.innerText.toLowerCase() || "";
-    row.style.display = material.includes(q) || desc.includes(q) ? "" : "none";
+
+  [...tabelDesktop.rows].forEach(r => {
+    const t = r.innerText.toLowerCase();
+    r.style.display = t.includes(q) ? "" : "none";
+  });
+
+  [...tabelMobile.children].forEach(c => {
+    const t = c.innerText.toLowerCase();
+    c.style.display = t.includes(q) ? "" : "none";
   });
 }
 
-/* ================= LOAD DATA ================= */
+/* ===== LOAD DATA ===== */
 function loadData() {
   fetch(url)
     .then(res => res.text())
     .then(data => {
       const json = JSON.parse(data.substr(47).slice(0, -2));
-      tabelBarang.innerHTML = "";
+      tabelDesktop.innerHTML = "";
+      tabelMobile.innerHTML = "";
 
       json.table.rows.forEach(r => {
         const c = r.c;
@@ -157,29 +144,34 @@ function loadData() {
         const keluar = c[3]?.v || 0;
         const total = masuk - keluar;
 
-        tabelBarang.innerHTML += `
+        /* DESKTOP */
+        tabelDesktop.innerHTML += `
           <tr class="text-center">
             <td class="border p-2">${c[0]?.v || "-"}</td>
             <td class="border p-2">${c[1]?.v || "-"}</td>
             <td class="border p-2">${masuk}</td>
             <td class="border p-2">${keluar}</td>
-            <td class="border p-2 ${total === 1 ? 'bg-yellow-300 text-red-700 font-bold' : ''}">
+            <td class="border p-2 ${total===1?'bg-yellow-300 text-red-700 font-bold':''}">
               ${total}
             </td>
-           
-          </tr>
-        `;
+          </tr>`;
+
+        /* MOBILE */
+        tabelMobile.innerHTML += `
+          <div class="border rounded-xl p-3 shadow">
+            <div class="font-bold">${c[0]?.v || "-"}</div>
+            <div class="text-sm text-gray-600 mb-2">${c[1]?.v || "-"}</div>
+            <div class="grid grid-cols-3 text-center text-sm">
+              <div><div class="text-gray-500">Masuk</div>${masuk}</div>
+              <div><div class="text-gray-500">Keluar</div>${keluar}</div>
+              <div class="font-bold ${total===1?'text-red-600':''}">
+                <div class="text-gray-500">Total</div>${total}
+              </div>
+            </div>
+          </div>`;
       });
 
-      lastUpdate.textContent = "Tanggal Hari ini: " + new Date().toLocaleString();
-    })
-    .catch(() => {
-      tabelBarang.innerHTML = `
-        <tr>
-          <td colspan="6" class="p-4 text-center text-red-600">
-            Gagal memuat data
-          </td>
-        </tr>`;
+      lastUpdate.textContent = "Terakhir diperbarui: " + new Date().toLocaleString();
     });
 }
 </script>
