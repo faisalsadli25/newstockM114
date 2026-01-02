@@ -32,14 +32,28 @@
 
 <!-- ========== HEADER ========== -->
 <header class="sticky top-0 z-40 bg-red-700 text-white shadow-xl">
-<div class="max-w-6xl mx-auto flex justify-between items-center px-4 py-4">
-    <h1 class="text-lg md:text-2xl font-bold">
-        STOCK TOKO ERAFONE MAROS(M114)
+  <div
+    class="max-w-6xl mx-auto
+           flex flex-col gap-2
+           sm:flex-row sm:items-center sm:justify-between
+           px-4 py-3">
+
+    <!-- TITLE -->
+    <h1 class="text-base sm:text-lg md:text-2xl font-bold text-center sm:text-left">
+      STOCK TOKO ERAFONE MAROS (M114)
     </h1>
-    <span id="user-name" class="text-sm md:text-base font-semibold"></span>
-    <div id="last-update" class="text-sm opacity-90 mt-1">Terakhir diperbarui: - </div>
-</div>
+
+    <!-- INFO KANAN -->
+    <div class="flex flex-col sm:items-end text-center sm:text-right">
+      <span id="user-name" class="text-sm md:text-base font-semibold"></span>
+      <div id="last-update" class="text-xs md:text-sm opacity-90">
+        Terakhir diperbarui: -
+      </div>
+    </div>
+
+  </div>
 </header>
+
 
 <!-- ========== MAIN CONTENT ========== -->
 <main class="max-w-6xl mx-auto bg-white/50 rounded-xl shadow-xl p-4 md:p-6">
