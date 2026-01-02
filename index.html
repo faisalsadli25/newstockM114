@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-white min-h-screen font-sans scroll-smooth">
+<body class="bg-[url('nailong.jpg')]  bg-center min-h-screen font-sans scroll-smooth">
 
 <!-- ========== MODAL LOGIN ========== -->
 <div id="loginModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -22,7 +22,7 @@
       <input id="password" type="password" placeholder="Masukkan password"
         class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500" required>
 
-      <button class="w-full bg-pink-600 text-white py-2 rounded-lg font-bold hover:bg-red-700">
+      <button class="w-full bg-yellow-300 text-gray-900 py-2 rounded-lg font-bold hover:bg-red-700">
         Masuk
       </button>
     </form>
@@ -30,7 +30,7 @@
 </div>
 
 <!-- ========== HEADER ========== -->
-<header class="sticky top-0 z-40 bg-pink-600 text-white shadow-xl rounded-xl">
+<header class="sticky top-0 z-40 bg-yellow-300/75 text-gray-800 shadow-xl rounded-xl">
   <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center px-4 py-3 gap-2">
     <h1 class="text-base sm:text-lg md:text-2xl font-bold text-center sm:text-left">
       STOCK TOKO ERAFONE MAROS (M114)
@@ -47,13 +47,13 @@
 
   <!-- SEARCH -->
   <input id="search-bar" type="text" placeholder="Cari barang..."
-    class="w-full bg-white rounded-lg px-4 py-2 mb-4 hover:bg-red-400 transition duration-700 "
+    class="w-full bg-yellow-300/75 rounded-lg px-4 py-2 mb-4 hover:bg-red-400 transition duration-700 "
     oninput="filterItems()">
 
   <!-- ===== DESKTOP TABLE ===== -->
-  <div class="hidden md:block overflow-x-auto">
+  <div class="hidden md:block overflow-x-auto bg-yellow-300/50">
     <table class="min-w-full border text-sm">
-      <thead class="bg-pink-600 text-white">
+      <thead class="bg-yellow-300/50 text-gray-700">
         <tr>
           <th class="p-2 border">Material</th>
           <th class="p-2 border">Description</th>
@@ -78,7 +78,7 @@
 </main>
 
 <!-- ========== FOOTER ========== -->
-<footer class="text-center text-white text-sm bg-pink-600 py-4 font-bold rounded-xl shadow-xl">
+<footer class="text-center text-white text-sm bg-yellow-300/75 py-4 font-bold rounded-xl shadow-xl">
   © Website Stock By M Faisal Sadli
 </footer>
 
