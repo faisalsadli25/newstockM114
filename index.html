@@ -163,9 +163,9 @@ function loadData() {
 
         /* MOBILE */
         tabelMobile.innerHTML += `
-          <div class="border bg-yellow-300/50 rounded-xl p-3 shadow-xl">
+          <div class="border bg-white rounded-xl p-3 shadow-xl hover:bg-yellow-200 transition duration-500 focus:ring-4 hover:ring-yellow-500">
             <div class="font-bold">${c[0]?.v || "-"}</div>
-            <div class="text-sm text-white mb-2">${c[1]?.v || "-"}</div>
+            <div class="text-sm text-gray mb-2">${c[1]?.v || "-"}</div>
             <div class="grid grid-cols-3 text-center text-sm">
               <div><div class="text-gray-500">Masuk</div>${masuk}</div>
               <div><div class="text-gray-500">Keluar</div>${keluar}</div>
