@@ -11,14 +11,12 @@
     .bg-navy { background-color: #0f172a; }
     .text-navy { color: #0f172a; }
     
-    /* Animasi Kedap-Kedip Stok Sisa 1 */
     @keyframes blink {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.3; transform: scale(1.1); }
     }
     .blink-alert { animation: blink 0.8s infinite; color: #ef4444; font-weight: 800; }
 
-    /* Badge Status */
     .status-badge {
       padding: 4px 12px;
       border-radius: 99px;
@@ -29,6 +27,7 @@
     }
     .status-updated { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     .status-stale { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .status-waiting { background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
   </style>
 </head>
 
@@ -40,11 +39,10 @@
         <div class="w-16 h-16 bg-navy rounded-2xl flex items-center justify-center shadow-lg text-white text-2xl font-bold">E</div>
     </div>
     <h2 class="text-2xl font-bold text-center text-navy mb-2 italic">ERAFONE M114</h2>
-    <p class="text-slate-400 text-center text-xs mb-8 uppercase tracking-widest">Internal Stock System</p>
     <form id="loginForm" class="space-y-4">
-      <input id="nama" type="text" placeholder="Username" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-navy transition-all" required>
-      <input id="password" type="password" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-navy transition-all" required>
-      <button class="w-full bg-navy text-white py-4 rounded-xl font-bold shadow-lg hover:bg-slate-800 active:scale-95 transition-all">LOG IN</button>
+      <input id="nama" type="text" placeholder="Username" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-navy" required>
+      <input id="password" type="password" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-navy" required>
+      <button class="w-full bg-navy text-white py-4 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all">LOG IN</button>
     </form>
   </div>
 </div>
@@ -54,7 +52,7 @@
     <div>
         <h1 class="text-xl font-black italic tracking-tight uppercase">Erafone Maros M114</h1>
         <div class="flex items-center gap-2 mt-1">
-            <span id="status-label" class="status-badge status-updated">Sinkronisasi...</span>
+            <span id="status-label" class="status-badge status-waiting">Menunggu Data...</span>
             <span id="update-time-display" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"></span>
         </div>
     </div>
@@ -65,8 +63,8 @@
 </header>
 
 <main class="max-w-6xl mx-auto p-4 md:p-8">
-  <div class="mb-8 relative">
-    <input id="search-bar" type="text" placeholder="Cari tipe handphone..." class="w-full bg-white border border-slate-200 rounded-2xl pl-6 pr-4 py-4 shadow-sm focus:ring-2 focus:ring-navy outline-none font-medium" oninput="filterItems()">
+  <div class="mb-8">
+    <input id="search-bar" type="text" placeholder="Cari tipe handphone..." class="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 shadow-sm focus:ring-2 focus:ring-navy outline-none font-medium" oninput="filterItems()">
   </div>
 
   <div class="hidden md:block overflow-hidden bg-white rounded-3xl shadow-xl border border-slate-100">
@@ -80,8 +78,7 @@
           <th class="px-8 py-4 text-center">Sisa Stok</th>
         </tr>
       </thead>
-      <tbody id="tabel-desktop" class="divide-y divide-slate-50">
-        </tbody>
+      <tbody id="tabel-desktop" class="divide-y divide-slate-50"></tbody>
     </table>
   </div>
 
@@ -89,15 +86,14 @@
 </main>
 
 <script>
-/* ===== SETTINGS ===== */
 const PASSWORD_BENAR = "m114";
 const NAMA_DIIJINKAN = ["Dion","Ali","Wira","Awa","Hilda","Dilla","icha","anna","cici"];
 const url = `https://docs.google.com/spreadsheets/d/11xtV-IQl-gD7X1nmAdT52u3XomF_7DT0hNJRyZj2hs4/gviz/tq?tqx=out:json&sheet=Sheet1`;
 
-/* ===== STATE MANAGEMENT ===== */
 let lastDataHash = localStorage.getItem('lastDataHash_M114') || "";
 let lastChangeTimestamp = localStorage.getItem('lastChangeTimestamp_M114') || null;
 let lastChangeTimeDisplay = localStorage.getItem('lastChangeTimeDisplay_M114') || "-";
+let isDataChanged = false; // Flag penanda update baru
 
 document.getElementById("loginForm").addEventListener("submit", e => {
   e.preventDefault();
@@ -110,8 +106,8 @@ document.getElementById("loginForm").addEventListener("submit", e => {
     document.getElementById("loginModal").classList.add("hidden");
     
     loadData();
-    setInterval(loadData, 60000); // Cek background setiap 1 menit
-    setInterval(checkStaleStatus, 10000); // Cek status badge tiap 10 detik
+    setInterval(loadData, 60000); 
+    setInterval(checkStaleStatus, 5000); 
   } else {
     alert("Data Login Salah!");
   }
@@ -124,9 +120,9 @@ function loadData() {
       const currentHash = data;
       const json = JSON.parse(data.substr(47).slice(0, -2));
 
-      // LOGIKA: Update jam HANYA jika hash data BERBEDA dengan yang terakhir disimpan
-      // Jika lastDataHash kosong (login pertama kali), kita simpan tanpa menganggap "baru saja diubah"
+      // Jika Hash berbeda dan hash lama tidak kosong = ADA PERUBAHAN NYATA
       if (lastDataHash !== "" && currentHash !== lastDataHash) {
+        isDataChanged = true; // Aktifkan status hijau
         lastChangeTimestamp = Date.now();
         lastChangeTimeDisplay = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         
@@ -134,8 +130,9 @@ function loadData() {
         localStorage.setItem('lastChangeTimeDisplay_M114', lastChangeTimeDisplay);
       } 
       
-      // Kondisi jika aplikasi benar-benar baru pertama kali dibuka di HP tersebut
+      // Jika pertama kali buka (data masih kosong di storage)
       if (!lastChangeTimestamp) {
+        isDataChanged = false; // Jangan tampilkan status hijau dulu
         lastChangeTimestamp = Date.now();
         lastChangeTimeDisplay = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         localStorage.setItem('lastChangeTimestamp_M114', lastChangeTimestamp);
@@ -163,12 +160,18 @@ function checkStaleStatus() {
   if (timePassed > twoHours) {
     label.textContent = "Belum Diperbarui";
     label.className = "status-badge status-stale";
-  } else {
+    isDataChanged = false; // Reset flag jika sudah basi
+  } else if (isDataChanged) {
+    // Hanya hijau jika flag isDataChanged aktif
     label.textContent = "Sudah Diperbarui";
     label.className = "status-badge status-updated";
+  } else {
+    // Status Standby jika data masih segar tapi belum ada perubahan baru sejak web dibuka
+    label.textContent = "Data Sinkron";
+    label.className = "status-badge status-waiting";
   }
 
-  timeText.textContent = "Update: " + lastChangeTimeDisplay;
+  timeText.textContent = "Terakhir Update Sheet: " + lastChangeTimeDisplay;
 }
 
 function renderData(rows) {
@@ -188,28 +191,19 @@ function renderData(rows) {
       <tr class="hover:bg-slate-50 transition-colors">
         <td class="px-8 py-4 text-xs text-slate-400 font-mono">${c[0]?.v || "-"}</td>
         <td class="px-8 py-4 font-bold text-navy uppercase text-xs">${c[1]?.v || "-"}</td>
-        <td class="px-8 py-4 text-center font-medium text-slate-500">${masuk}</td>
-        <td class="px-8 py-4 text-center font-medium text-slate-500">${keluar}</td>
+        <td class="px-8 py-4 text-center font-medium">${masuk}</td>
+        <td class="px-8 py-4 text-center font-medium">${keluar}</td>
         <td class="px-8 py-4 text-center"><span class="${isBlink} bg-slate-100 px-4 py-1.5 rounded-lg border border-slate-200">${total}</span></td>
       </tr>`;
 
     mobileBody.innerHTML += `
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div class="text-[9px] text-slate-300 font-bold mb-1 font-mono tracking-tighter">${c[0]?.v || "-"}</div>
+        <div class="text-[9px] text-slate-300 font-bold mb-1 font-mono">${c[0]?.v || "-"}</div>
         <div class="font-extrabold text-navy text-base mb-4 leading-tight">${c[1]?.v || "-"}</div>
         <div class="grid grid-cols-3 gap-4 border-t border-slate-50 pt-4">
-          <div class="text-center">
-            <p class="text-[9px] text-slate-400 uppercase font-bold">In</p>
-            <p class="font-bold text-slate-700">${masuk}</p>
-          </div>
-          <div class="text-center border-x border-slate-100">
-            <p class="text-[9px] text-slate-400 uppercase font-bold">Out</p>
-            <p class="font-bold text-slate-700">${keluar}</p>
-          </div>
-          <div class="text-center">
-            <p class="text-[9px] text-slate-400 uppercase font-bold">Stok</p>
-            <p class="${isBlink} text-lg">${total}</p>
-          </div>
+          <div class="text-center"><p class="text-[9px] text-slate-400 font-bold">In</p><p class="font-bold">${masuk}</p></div>
+          <div class="text-center border-x"><p class="text-[9px] text-slate-400 font-bold">Out</p><p class="font-bold">${keluar}</p></div>
+          <div class="text-center"><p class="text-[9px] text-slate-400 font-bold">Stok</p><p class="${isBlink} text-lg">${total}</p></div>
         </div>
       </div>`;
   });
